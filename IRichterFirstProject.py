@@ -18,41 +18,43 @@ def get_data(csv_path):
 st.set_page_config(page_title="Isabel's First Project",
 page_icon=':star:')
 st.title("Fun Facts about Isabel")
-st.write("To introduce myself to Streamlit, I've added a few components to this page to share a bit about me.")
+st.write("As I introduce myself to Streamlit, I've created this page to share a bit about me.")
 
 st.subheader("Outside of work and school, I love hiking with my dog, Oliva.")
 image = Image.open('Puppy.jpg')
 st.image(image, caption='This is Olivia.')
 
 #Display a video with a set start time 
-st.subheader("I also love cats. Press play to jump to a video of a kitten sneeze.")
+st.subheader("But don't get me wrong, I also love cats. Press play to jump to a video of a kitten sneeze.")
 video_url= "https://www.youtube.com/watch?v=ftgcwsBqS0U"
 #start time in seconds 
 st.video(video_url,start_time=13*60+48)
 
 #Data Display
-st.subheader("I love to travel. Here are the locations of some of my favorite trips.")
+st.subheader("I love to travel. Here are the locations of some of my favorite trips from the last few years.")
 #make a dataframe with the location name, long./lat., and month/year of trip. 
-travel= pd.DataFrame({'location':['San Ignacio','Madrid','Glacier National Park'],
-'latitude':[17.1523,40.4168,48.7596],
-'longitude':[-89.0800,-3.7038,-113.787],
-'date':[dt.datetime(2019,1,1),dt.datetime(2020,1,1),dt.datetime(2021,7,1)]
+travel= pd.DataFrame({'location':['San Ignacio, Belize','Madrid','Glacier National Park','Atanta','San Fransisco','Bogota'],
+'latitude':[17.1523,40.4168,48.7596,33.749,37.7749,4.711],
+'longitude':[-89.0800,-3.7038,-113.787,-84.388,-122.4194,-74.07],
+'date':[dt.datetime(2019,1,1),dt.datetime(2020,1,1),dt.datetime(2021,7,1),dt.datetime(2021,4,1),dt.datetime(2022,1,1),dt.datetime(2019,7,1)]
 })
 
-Ithtravel= pd.DataFrame({'location':['Ithaca','Buffalo'],
-'latitude':[42.444,42.8864],
-'longitude':[-76.5019,-78.8784],
-'date':[dt.datetime(2020,2,1),dt.datetime(2019,4,1)]
+Ithtravel= pd.DataFrame({'location':['Ithaca','Buffalo','New York'],
+'latitude':[42.444,42.8864,40.7128],
+'longitude':[-76.5019,-78.8784,-74.006],
+'date':[dt.datetime(2020,2,1),dt.datetime(2019,4,1),dt.datetime(2021,3,1)]
 })
-with st.expander("Expand to check list of locations near Ithaca:"):
+#use magic to print table
+myTable= st.table(travel)
+
+with st.expander("Expand to see the list of locations near Ithaca:"):
     st.experimental_show(Ithtravel)
 
-st.write("Locations List")
-myTable= st.table(travel)
-checkIth= st.checkbox("Click to add locations near Ithaca.")
+checkIth= st.checkbox("Click to add locations near Ithaca to the above table.")
 if checkIth:
     #modify the above table without printing out a new table
     myTable.add_rows(Ithtravel)
+    travel= pd.concat([travel,Ithtravel],ignore_index=True)
 
 #calculate how many months it's been since the date of trip 
 monthdiff=[]
@@ -67,33 +69,34 @@ with maps.container():
     #include a slider to filter out non-recent trips
     month_filter = st.slider('Slide to filter the map by most to least recent trips.', 0, 48, 24)  # min: 0mo, max: 48mo, default: 24mo
     filtered_data = travel[travel['MonthsSince'] <= month_filter]
-    st.subheader(f'Map of all trips in the last {month_filter} months.')
+    st.subheader(f"Here's a map of all trips in the last {month_filter} months.")
     st.map(filtered_data)
 
-#When check mark is checked, overlay volcano data
-showVolcanoes= st.checkbox("Check to switch to a map of volcanoes around the world.")
+#When check mark is checked, switch the map to volcano data
+showVolcanoes= st.checkbox("But enough about me, check to switch the map to show volcanoes around the world.")
 if showVolcanoes:
     #hide the map without volcanoes 
     maps.empty()
 
     travelLoc= pd.DataFrame({'latitude':travel.loc[:,'latitude'],'longitude':travel.loc[:,'longitude']})
-    AllLoc= st.dataframe(travelLoc)
-
+    
+    #Use cache to store the volcano data 
     volcData= get_data('volcanoes.csv')
     volcLoc= pd.DataFrame({'latitude':volcData.loc[:,'latitude'],'longitude':volcData.loc[:,'longitude']})
     
     with maps.container():
         st.map(volcData)
     
-    #display volcano data as a dataframe
-    st.write("Here is the full list of volcano locations and trip locations.")
+    #practice combining data and display data as a dataframe
+    st.write("Here is the full list of volcano locations along with my trip locations.")
+    AllLoc= st.dataframe(travelLoc) 
     AllLoc.add_rows(volcLoc)
     
     #Include bar graph of locations of volcanos
     #Code for displaying loading text from Uber Test App code
     volc_loading= st.text("Loading Volcanoes by Region...") 
     st.write(px.bar(volcData,x='region')) 
-    volc_loading.text("Here is the Volcano Count by Region of the World.")
+    volc_loading.text("Now let's check the Volcano Count by Region of the World.")
 
 
 @st.experimental_memo
@@ -101,20 +104,16 @@ def set_fav_foods(fruit,veg):
     st.session_state["Fruit"]= fruit
     st.session_state["Veggie"]= veg
 
-
+#Call function first with one set of inputs 
 set_fav_foods("Banana","Peas")
-st.session_state
 
-#if length of dataframe is less than complete, 
-#st.progress(value between 0 and 100)
-
-#copied test code for form from Streamlit example
-st.write("Fill out the following form to guess my favorite foods.")
+#Use a form to have the user guess favorite foods 
+st.write("Now that you have this detailed info about me, fill out this form to try guessing my favorite foods.")
 with st.form("favFood_form"):
     fruit_val = st.selectbox("Favorite Fruit:",('Strawberry','Banana','Kiwi','Watermelon'))
     veg_val = st.selectbox("Favorite Vegetable:",('Brocolli','Carrot','Mushroom','Peas'))
 
-    # Every form must have a submit button.
+    #include submit button 
     submitted = st.form_submit_button("Submit")
     if submitted:
         #by using experimental memo, function won't rerun if inputs haven't changed
