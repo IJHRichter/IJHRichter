@@ -3,7 +3,6 @@ import pandas as pd
 import numpy as np
 import datetime as dt
 import plotly.express as px
-import time 
 from PIL import Image
 
 @st.cache
@@ -120,9 +119,10 @@ with st.form("favFood_form"):
         set_fav_foods(fruit_val,veg_val)
         st.write("Favorite Fruit:", fruit_val, "Favorite Vegetable:", veg_val)
 
-#Pretend this check takes a long time 
+#Pretend this check takes a long time by reading volcano data again
 with st.spinner("Checking guess..."):
-    time.sleep(3)
+    datarepeat= pd.read_csv('volcanoes.csv')
+    
 st.success("Check Complete.")
 if "Kiwi" in st.session_state["Fruit"]:
     if "Carrot" in st.session_state["Veggie"]:
