@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import datetime as dt
-import plotly.express as px
 from PIL import Image
 
 @st.cache
@@ -20,7 +19,7 @@ st.title("Fun Facts about Isabel")
 st.write("As I introduce myself to Streamlit, I've created this page to share a bit about me.")
 
 st.subheader("Outside of work and school, I love hiking with my dog, Oliva.")
-image = Image.open('Puppy.jpg')
+image = Image.open('Puppy.JPG')
 st.image(image, caption='This is Olivia.')
 
 #Display a video with a set start time 
@@ -94,7 +93,7 @@ if showVolcanoes:
     #Include bar graph of locations of volcanos
     #Code for displaying loading text from Uber Test App code
     volc_loading= st.text("Loading Volcanoes by Region...") 
-    st.write(px.bar(volcData,x='region')) 
+    #st.write(px.bar(volcData,x='region'))  Excluded from plotly express incompatibility
     volc_loading.text("Now let's check the Volcano Count by Region of the World.")
 
 
